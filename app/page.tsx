@@ -28,14 +28,12 @@ export default function Home() {
       <h1>Warehouse Transport Task Dashboard</h1>
 
       <p style={{ marginTop: "0.5rem", color: "#555" }}>
-        🚧 Demo Mode — This application uses seeded demo data.
-        No real warehouse operations are executed.
+        🚧 Demo Mode — This application uses seeded demo data. No real warehouse operations are executed.
       </p>
 
+      {/* Filter buttons */}
       <section style={{ marginTop: "2rem" }}>
         <h2>Transport Tasks</h2>
-
-        {/* Filter buttons */}
         <div style={{ marginBottom: "1rem" }}>
           {["ALL", "PENDING", "IN_PROGRESS", "COMPLETED"].map((status) => (
             <button
@@ -84,22 +82,29 @@ export default function Home() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const form = e.target as HTMLFormElement;
-            const id = (form.id.value as string).trim();
-            const source = (form.source.value as string).trim();
-            const destination = (form.destination.value as string).trim();
-            const transportType = (form.transportType.value as string).trim();
-            const status = (form.status.value as string).trim();
-            const priority = (form.priority.value as string).trim();
 
+            // Create FormData from the form
+            const formData = new FormData(e.target as HTMLFormElement);
+
+            // Extract values safely
+            const id = (formData.get("id") as string)?.trim() || "";
+            const source = (formData.get("source") as string)?.trim() || "";
+            const destination = (formData.get("destination") as string)?.trim() || "";
+            const transportType = (formData.get("transportType") as string)?.trim() || "";
+            const status = (formData.get("status") as string)?.trim() || "";
+            const priority = (formData.get("priority") as string)?.trim() || "";
+
+            // Do not submit if any field is empty
             if (!id || !source || !destination || !transportType || !status || !priority) return;
 
+            // Update the task list state
             setTaskList([
               ...taskList,
               { id, source, destination, transportType, status, priority },
             ]);
 
-            form.reset();
+            // Reset the form
+            (e.target as HTMLFormElement).reset();
           }}
           style={{
             display: "flex",
@@ -112,7 +117,19 @@ export default function Home() {
           <input name="source" placeholder="Source (e.g., Dock A)" />
           <input name="destination" placeholder="Destination (e.g., Storage B)" />
           <input name="transportType" placeholder="Transport Type (Conveyor/AGV/Forklift)" />
-          <input name="status" placeholder="Status (PENDING/IN_PROGRESS/COMPLETED)" />
+          <select name="status" required>
+            <option value="">Select Status</option>
+            <option value="PENDING">PENDING</option>
+            <option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="COMPLETED">COMPLETED</option>
+          </select>
+
+          <select name="priority" required>
+            <option value="">Select Priority</option>
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+          </select>
           <input name="priority" placeholder="Priority (LOW/MEDIUM/HIGH)" />
           <button
             type="submit"
